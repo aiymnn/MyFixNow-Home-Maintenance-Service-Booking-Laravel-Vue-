@@ -13,6 +13,7 @@ use App\Models\State;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Stripe\Stripe;
+use Carbon\Carbon;
 use Stripe\Checkout\Session as StripeSession;
 
 class PortalController extends Controller
@@ -85,7 +86,7 @@ class PortalController extends Controller
             ->get();
 
         // ✅ Log availability slots for debug
-        logger()->info('Availability Slots:', $availabilitySlots->toArray());
+        // logger()->info('Availability Slots:', $availabilitySlots->toArray());
 
         // ✅ Fetch slot IDs that are currently booked (pending or in_progress)
         $bookedSlotIds = Booking::where('service_id', $service->id)
@@ -96,7 +97,7 @@ class PortalController extends Controller
             ->values()
             ->toArray();
 
-        logger()->info('Booked Slot IDs:', $bookedSlotIds);
+        // logger()->info('Booked Slot IDs:', $bookedSlotIds);
 
         // ✅ Append availability summary
         $availabilityDaysCount = $availabilitySlots->pluck('day_of_week')->unique()->count();
@@ -171,7 +172,9 @@ class PortalController extends Controller
 
         $slot = AvailabilitySlot::findOrFail($validated['availability_slot_id']);
 
-        $formattedTimeSlot = Carbon::createFromFormat('H:i:s', $slot->start_time)->format('H:i') . ' - ' . Carbon::createFromFormat('H:i:s', $slot->end_time)->format('H:i');
+        // dd($slot->start_time, $slot->end_time);
+
+        $formattedTimeSlot = $slot->start_time->format('H:i') . ' - ' . $slot->end_time->format('H:i');
 
         $booking = Booking::create([
             'customer_id' => auth()->id(),
